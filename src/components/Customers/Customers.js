@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-material.css';
@@ -25,6 +25,12 @@ export default function Customers(){
     
     const [open, setOpen] = useState(false);
     const [msg, setMsg] = useState('');
+
+    const gridRef = useRef();
+
+    const onBtnExport = useCallback(() => {
+      gridRef.current.api.exportDataAsCsv();
+  }, []);
 
     const handleClose = () => {
       setOpen(false);
@@ -128,13 +134,12 @@ export default function Customers(){
           resizable: true,
         };
       }, []);
-      
-    const gridRef = useRef();
 
     useEffect(() => fetchData(), []);
 
     return (
-        <div
+      
+      <div
         className="ag-theme-material"
         style={{
           height: '700px',
@@ -150,17 +155,21 @@ export default function Customers(){
                     </Toolbar>
                 </AppBar>
             </Box>
+
             <Addcustomer saveCustomer={saveCustomer}/>
+
+            <Button style={{margin: 5}}  variant="outlined" onClick={onBtnExport}>Export .csv file</Button>
+
             <AgGridReact
                 ref={gridRef}
                 defaultColDef={defaultColDef}
-                onGridReady= { params => gridRef.current = params.api }
                 animateRows={true}
                 rowSelection={'single'}
                 columnDefs={columns}
                 rowData={customers}
                 >
             </AgGridReact>
+            
             <Snackbar
                 open={open}
                 autoHideDuration={3000}

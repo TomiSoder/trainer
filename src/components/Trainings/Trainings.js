@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-material.css';
@@ -49,6 +49,9 @@ export default function Trainings(){
           width: 100, 
           cellRenderer: row => <Button size="small" variant="outlined" startIcon={<DeleteIcon />}  onClick={() => deleteTraining(row.data.links[0].href)}>Delete</Button> },
     ]
+      const onBtnExport = useCallback(() => {
+        gridRef.current.api.exportDataAsCsv();
+    }, []);
       
       const saveTraining = (training) => {
         fetch('https://customerrest.herokuapp.com/api/trainings', {
@@ -131,10 +134,11 @@ export default function Trainings(){
 
             <Addtraining saveTraining={saveTraining}/>
 
+            <Button style={{margin: 5}}  variant="outlined" onClick={onBtnExport}>Export .csv file</Button>
+
             <AgGridReact
               ref={gridRef}
               defaultColDef={defaultColDef}
-              onGridReady= { params => gridRef.current = params.api }
               animateRows={true}
               rowSelection={'single'}
               columnDefs={columns}
